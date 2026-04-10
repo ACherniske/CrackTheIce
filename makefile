@@ -2,7 +2,7 @@
 BOARD   ?= icebreaker
 TOP     := pisc8_top
 DEVICE  := up5k
-PCF     := constraints/icebreaker.pcf
+PCF     := constraints/pisc8.pcf
 
 # Toolchain Path Setup
 OSS_CAD_SUITE_PATH ?= $(HOME)/oss-cad-suite
@@ -13,7 +13,7 @@ endif
 # Files
 SOURCES := rtl/pisc8_top.v rtl/pisc8_core.v rtl/uart_tx.v
 ASM_SRC := asm/hello.s
-MEM_OUT := asm/firmware.mem
+MEM_OUT := asm/hello.mem
 
 # Tools
 YOSYS    := yosys
