@@ -179,5 +179,10 @@ wait_lf:
     LDI  r3, #UART_DATA
     ST   r3, r1
 
-; --- Wait for last byte to finish then halt ---
+; --- Wait for last byte to finish, then light LED and halt ---
+wait_done:
+    LDI  r3, #UART_BUSY
+    LD   r2, r3
+    BNZ  wait_done
+
     HALT
