@@ -41,12 +41,31 @@ always @(posedge clk_12mhz or posedge rst_async) begin
 end
 
 // ---------------------------------------------------------------------------
+// Power-on reset delay
+// ---------------------------------------------------------------------------
+reg [15:0] reset_counter;
+wire       rst_startup;
+
+always @(posedge clk_12mhz or posedge rst_async) begin
+    if (rst_async) begin
+        reset_counter <= 16'h0000;
+    end else if (reset_counter != 16'hFFFF) begin
+        reset_counter <= reset_counter + 1;
+    end
+end
+
+assign rst_startup = (reset_counter != 16'hFFFF);
+
+// Final reset used across system
+wire rst_final = rst_sync | rst_startup;
+
+// ---------------------------------------------------------------------------
 // I/O bus
 // ---------------------------------------------------------------------------
-wire [7:0] io_addr; // combinational from core - valid same cycle as io_we/io_re
+wire [7:0] io_addr;
 wire [7:0] io_wdata;
-wire        io_we;
-wire        io_re;
+wire       io_we;
+wire       io_re;
 reg  [7:0] io_rdata;
 
 // ---------------------------------------------------------------------------
@@ -63,7 +82,7 @@ uart_tx #(
     .BAUD_RATE (115_200)
 ) u_uart_tx (
     .clk      (clk_12mhz),
-    .rst      (rst_sync),
+    .rst      (rst_final),
     .tx_data  (uart_tx_data),
     .tx_valid (uart_tx_valid),
     .tx_busy  (uart_busy),
@@ -77,42 +96,38 @@ assign ledn = ~gpio_out_reg[4:0];  // PMOD LEDs are active-low
 // ---------------------------------------------------------------------------
 // I/O write decoder
 // ---------------------------------------------------------------------------
-always @(posedge clk_12mhz or posedge rst_sync) begin
-    if (rst_sync) begin
+always @(posedge clk_12mhz or posedge rst_final) begin
+    if (rst_final) begin
         uart_tx_valid <= 1'b0;
         uart_tx_data  <= 8'h00;
         gpio_out_reg  <= 8'h00;
     end else begin
-        // Only clear tx_valid if we're NOT writing to UART this cycle
-        if (io_we && io_addr == 8'h00) begin
-            // UART_DATA - latch byte and pulse tx_valid
+        uart_tx_valid <= 1'b0;  // default: pulse only
+
+        // Only send when UART is ready
+        if (io_we && io_addr == 8'h00 && !uart_busy) begin
             uart_tx_data  <= io_wdata;
             uart_tx_valid <= 1'b1;
-        end else begin
-            uart_tx_valid <= 1'b0;
         end
-        
-        // Handle other I/O writes
+
+        // Other I/O
         if (io_we) begin
             case (io_addr)
-                8'h02: begin
-                    // GPIO_OUT
-                    gpio_out_reg  <= io_wdata;
-                end
-                default: ; // ignore writes to unknown ports
+                8'h02: gpio_out_reg <= io_wdata;
+                default: ;
             endcase
         end
     end
 end
 
 // ---------------------------------------------------------------------------
-// I/O read mux (combinational - same cycle as LD execute)
+// I/O read mux (combinational)
 // ---------------------------------------------------------------------------
 always @(*) begin
     case (io_addr)
-        8'h01:   io_rdata = {7'b0, uart_busy};   // UART_BUSY
-        8'h03:   io_rdata = 8'h00;               // GPIO_IN (not wired here)
-        default: io_rdata = 8'hFF;               // unimplemented → 0xFF
+        8'h01:   io_rdata = {7'b0, uart_busy}; // UART_BUSY
+        8'h03:   io_rdata = 8'h00;             // GPIO_IN (unused)
+        default: io_rdata = 8'hFF;
     endcase
 end
 
@@ -126,7 +141,7 @@ pisc8_core #(
     .ROM_DEPTH (256)
 ) u_core (
     .clk      (clk_12mhz),
-    .rst      (rst_sync),
+    .rst      (rst_final),
     .io_addr  (io_addr),
     .io_wdata (io_wdata),
     .io_we    (io_we),
