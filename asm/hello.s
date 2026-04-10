@@ -179,15 +179,5 @@ wait_lf:
     LDI  r3, #UART_DATA
     ST   r3, r1
 
-; --- Wait for last byte to finish, then light LED and halt ---
-wait_done:
-    LDI  r3, #UART_BUSY
-    LD   r2, r3
-    BNZ  wait_done
-
-; Light up LED (GPIO_OUT port = 0x02, value 0x01 = LED0 on)
-    LDI  r1, #0x01            ; LED pattern: bit 0 on
-    LDI  r3, #GPIO_OUT        ; port 0x02
-    ST   r3, r1               ; drive LED
-
+; --- Wait for last byte to finish then halt ---
     HALT
