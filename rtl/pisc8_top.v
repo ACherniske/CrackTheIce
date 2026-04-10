@@ -83,15 +83,18 @@ always @(posedge clk_12mhz or posedge rst_sync) begin
         uart_tx_data  <= 8'h00;
         gpio_out_reg  <= 8'h00;
     end else begin
-        uart_tx_valid <= 1'b0;  // default: no new byte
-
+        // Only clear tx_valid if we're NOT writing to UART this cycle
+        if (io_we && io_addr == 8'h00) begin
+            // UART_DATA - latch byte and pulse tx_valid
+            uart_tx_data  <= io_wdata;
+            uart_tx_valid <= 1'b1;
+        end else begin
+            uart_tx_valid <= 1'b0;
+        end
+        
+        // Handle other I/O writes
         if (io_we) begin
             case (io_addr)
-                8'h00: begin
-                    // UART_DATA - latch byte and pulse tx_valid
-                    uart_tx_data  <= io_wdata;
-                    uart_tx_valid <= 1'b1;
-                end
                 8'h02: begin
                     // GPIO_OUT
                     gpio_out_reg  <= io_wdata;
