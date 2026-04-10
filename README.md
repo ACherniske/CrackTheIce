@@ -13,6 +13,8 @@
 ## The Architecture
 The core is a **3-stage pipeline** (Fetch → Decode → Execute). This allows the CPU to work on three different instructions simultaneously, introducing students to the concepts of throughput and timing.
 
+See [Execution Flow](docs/EXECUTION_FLOW.md) for how assembly becomes hardware execution.
+
 ### System Features:
 * **Core:** PISC-8 (Pedagogical Instruction Set Computer)
 * **Clock:** 12 MHz (Internal Oscillator)
