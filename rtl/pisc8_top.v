@@ -119,8 +119,10 @@ end
 // ---------------------------------------------------------------------------
 // Soft-core processor
 // ---------------------------------------------------------------------------
+parameter MEM_FILE = "asm/hello.mem";
+
 pisc8_core #(
-    .ROM_FILE  ("hello.mem"),
+    .ROM_FILE  (MEM_FILE),
     .ROM_DEPTH (256)
 ) u_core (
     .clk      (clk_12mhz),

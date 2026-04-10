@@ -12,8 +12,13 @@ endif
 
 # Files
 SOURCES := rtl/pisc8_top.v rtl/pisc8_core.v rtl/uart_tx.v
-ASM_SRC := asm/hello.s
-MEM_OUT := asm/hello.mem
+
+# Default program (can override: make flash ASM=asm/other.s)
+ASM ?= asm/hello.s
+
+# Automatically derive .mem from .s
+ASM_SRC := $(ASM)
+MEM_OUT := $(ASM_SRC:.s=.mem)
 
 # Tools
 YOSYS    := yosys
@@ -37,7 +42,7 @@ $(MEM_OUT): $(ASM_SRC)
 build/$(TOP).json: $(SOURCES) $(MEM_OUT)
 	@echo "  SYN   $@"
 	@mkdir -p build
-	$(YOSYS) -q -p "synth_ice40 -top $(TOP) -json $@" $(SOURCES)
+	$(YOSYS) -q -p "chparam -set MEM_FILE \"$(MEM_OUT)\" $(TOP); synth_ice40 -top $(TOP) -json $@" $(SOURCES)
 
 # 3. Place and Route
 build/$(TOP).asc: build/$(TOP).json $(PCF)
