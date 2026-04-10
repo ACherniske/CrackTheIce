@@ -173,15 +173,23 @@ class Assembler:
                 cleaned.append((line_no, line))
                 continue
 
-            # Handle label definitions
-            if line.endswith(':'):
-                label_name = line[:-1].strip()
+            # Handle label definitions (including inline labels)
+            if ':' in line:
+                label_part, *rest = line.split(':', 1)
+                label_name = label_part.strip()
+
                 if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', label_name):
                     raise AssemblerError(f"Invalid label: {label_name}", line_no)
                 if label_name in labels:
                     raise AssemblerError(f"Duplicate label: {label_name}", line_no)
+
                 labels[label_name] = pc
-                continue
+
+                # If there's code after the label, keep it
+                if rest and rest[0].strip():
+                    line = rest[0].strip()
+                else:
+                    continue
 
             cleaned.append((line_no, line))
             pc += 1
