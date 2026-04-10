@@ -1,0 +1,37 @@
+# =============================================================================
+# PISC-8 Pin Constraints — iCEbreaker v1.1a (iCE40UP5K-SG48I)
+#
+# UART TX:
+#   Connect a wire from P1A1 to AD2 DIO0. 
+#   Set DIO0 as a Logic Analyzer input in Waveforms.
+#   Also connect GND between iCEbreaker and AD2 GND.
+#
+# AD2 settings:
+#   Protocol: UART
+#   Baud:     115200
+#   Format:   8N1
+#   Polarity: Normal (idle HIGH)
+# =============================================================================
+
+# 12 MHz system clock (on-board oscillator)
+set_io clk_12mhz   35
+
+# Reset button (BTN_N — active low, on-board)
+set_io btn_n       10
+
+# UART TX → P1A header pin 1 (wire this to AD2 DIO0)
+# iCEbreaker PMOD1A pin 1 = FPGA ball J2
+set_io uart_tx_pin  4
+
+# PMOD 1A LEDs (optional visual indicator while UART transmits)
+# These are the 5 user LEDs on the iCEbreaker board itself
+# (the on-board green LED is pin 26, red LED is pin 23)
+set_io ledn[0]     26   # green LED (on-board)
+set_io ledn[1]     23   # red LED (on-board)
+
+# If you want PMOD-connected LEDs instead, use:
+# set_io ledn[0]  43   # PMOD1A pin 1
+# set_io ledn[1]  38   # PMOD1A pin 2
+# set_io ledn[2]  34   # PMOD1A pin 3
+# set_io ledn[3]  31   # PMOD1A pin 4
+# set_io ledn[4]  27   # PMOD1A pin 7
