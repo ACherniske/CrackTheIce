@@ -156,5 +156,7 @@ io_we    = 1
 
 Your Verilog peripheral sees this and sends the byte:
 
+```bash
 uart_tx_data  <= io_wdata;
 uart_tx_valid <= 1;
+```
