@@ -29,9 +29,10 @@ set_io uart_tx_pin  4
 set_io ledn[0]     26   # green LED (on-board)
 set_io ledn[1]     23   # red LED (on-board)
 
+
 # If you want PMOD-connected LEDs instead, use:
 # set_io ledn[0]  43   # PMOD1A pin 1
 # set_io ledn[1]  38   # PMOD1A pin 2
-# set_io ledn[2]  34   # PMOD1A pin 3
-# set_io ledn[3]  31   # PMOD1A pin 4
-# set_io ledn[4]  27   # PMOD1A pin 7
+set_io ledn[2]  34   # PMOD1A pin 3
+set_io ledn[3]  31   # PMOD1A pin 4
+set_io ledn[4]  27   # PMOD1A pin 7
