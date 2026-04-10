@@ -48,3 +48,14 @@ To perform a clean build and program your board in one go, you would run:
 ```bash
 make clean
 make flash
+```
+
+You can override this by specifying a different assembly file using the ASM variable:
+
+```bash
+# Build and flash default program
+make flash
+
+# Build and flash a custom program (ex. goodbye.s)
+make flash ASM=asm/goodbye.s
+```
