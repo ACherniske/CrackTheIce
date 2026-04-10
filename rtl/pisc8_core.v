@@ -9,7 +9,7 @@
 `default_nettype none
 
 module pisc8_core #(
-    parameter ROM_FILE = "hello.mem",
+    parameter ROM_FILE = "asm/hello.mem",
     parameter ROM_DEPTH = 256
 ) (
     input wire clk,
@@ -47,7 +47,7 @@ localparam OP_HALT = 4'hF;
 // Program ROM
 // ---------------------------------------------------------------------------
 reg [15:0] rom [0:ROM_DEPTH-1];
-initial $readmemh(ROM_FILE, rom, 0, ROM_DEPTH-1);
+initial $readmemh("asm/hello.mem", rom, 0, ROM_DEPTH-1);
 
 // ---------------------------------------------------------------------------
 // Processor state
